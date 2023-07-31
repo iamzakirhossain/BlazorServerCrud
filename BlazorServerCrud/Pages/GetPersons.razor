@@ -1,0 +1,59 @@
+﻿@page "/persons"
+@using BlazorServerCrud.Models
+@using BlazorServerCrud.Services
+@inject IPersonService PersonService
+<h3>GetPersons</h3>
+<a href="/addperson" class="btn btn-primary">Add Person</a>
+<table class="table table-striped">
+    <thead>
+       <tr>
+           <th>#</th>
+           <th>Full Name</th>
+           <th>Bio</th>
+           <th>DOB</th>
+           <th>Expected Salary</th>
+            <th>IsAvailable</th>
+            <th>Actions</th>
+       </tr>
+    </thead>
+    <tbody>
+        @foreach (var person in Persons!)
+        {
+            var id = person.Id;
+            <tr>
+                <td>@person.Id</td>
+                <td>@person.FullName</td>
+                <td>@person.Biodata</td>
+                <td>@person.DateOfBirth</td>
+                <td>@person.ExpectedSalary</td>
+                <td>@person.IsAvailable</td>
+                <td>
+                    <a class="btn btn-info" href=@($"/updateperson/{id}")>Edit</a>
+                    <button class="btn btn-danger" @onclick="()=>OnDelete(id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@code {
+    public IEnumerable<Person>? Persons = new List<Person>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        Persons = await PersonService.GetPersons();
+    }
+
+    private async Task OnDelete(int id)
+    {
+        await PersonService.DeletePerson(id);
+        await LoadData();
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,70 @@
+﻿@page "/addperson"
+@page "/updateperson/{id:int}"
+@using BlazorServerCrud.Models
+@using BlazorServerCrud.Services
+@inject IPersonService PersonService
+@inject NavigationManager NavigationManager
+<h3>Add Person</h3>
+
+<EditForm Model="@person" OnValidSubmit="OnSubmit">
+    <DataAnnotationsValidator/>
+    <div class="mb-2">
+        <label>Full Name</label>
+        <InputText class="form-control"  @bind-Value="person.FullName"/>
+        <ValidationMessage For="@(()=> person.FullName)"/>
+    </div>
+    <div class="mb-2">
+        <label>Bio Data</label>
+        <InputTextArea class="form-control" @bind-Value="person.Biodata" />
+        <ValidationMessage For="@(()=> person.Biodata)" />
+    </div>
+    <div class="mb-2">
+        <label>Date Of Birth</label>
+        <InputDate class="form-control" @bind-Value="person.DateOfBirth" />
+        <ValidationMessage For="@(()=> person.DateOfBirth)" />
+    </div>
+    <div class="mb-2">
+        <label>Expected Salary</label>
+        <InputNumber class="form-control" @bind-Value="person.ExpectedSalary" />
+        <ValidationMessage For="@(()=> person.ExpectedSalary)" />
+    </div>
+    <div class="mb-2">
+        <label>Is Available</label>
+        <InputCheckbox class="form-check" @bind-Value="person.IsAvailable" />
+        <ValidationMessage For="@(()=> person.IsAvailable)" />
+    </div>
+    <button type="submit" class="btn btn-success">Submit</button>
+</EditForm>
+
+
+@code {
+    Person person = new Person();
+    [Parameter]
+    public int Id { get; set; }
+
+    private async void OnSubmit()
+    {
+        if (Id > 0)
+        {
+            await PersonService.UpdatePerson(Id, person);
+            NavigationManager.NavigateTo("/persons");
+        }
+        else
+        {
+            await PersonService.PostPerson(person);
+            person = new Person();
+            StateHasChanged();
+        }
+       
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if(Id != 0)
+        {
+            person = await PersonService.GetPerson(Id);
+
+        }
+        
+    }
+}
